@@ -20,13 +20,14 @@ import slamdata.Predef._
 
 import slamdata.engine.config._
 import slamdata.engine.fp._
+import slamdata.engine.physical.filesystem.FileSystemBackend
 
 import scalaz.Foldable
 import scalaz.std.list._
 
 object BackendDefinitions {
   val MongoDB: BackendDefinition = BackendDefinition({
-    case config : MongoDbConfig =>
+    case config: MongoDbConfig =>
       import slamdata.engine.physical.mongodb._
       import Workflow._
 
@@ -43,8 +44,11 @@ object BackendDefinitions {
         val planner = MongoDbPlanner
         val evaluator = MongoDbEvaluator(client, defaultDb)
         val RP = RenderTree[Crystallized]
+
         protected def db = MongoWrapper(client, defaultDb)
       }
+    case fsConfig: FileSystemBackendConfig =>
+        scalaz.concurrent.Task(new FileSystemBackend(fsConfig))
   })
 
   val All = Foldable[List].foldMap(MongoDB :: Nil)(ɩ)

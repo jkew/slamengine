@@ -1,8 +1,13 @@
 {
     "mountings": {
-        "/": {
+        "/mongo": {
             "mongodb": {
                 "connectionUri": "mongodb://slamengine:slamengine@ds045089.mongolab.com:45089/slamengine-test-01"
+            }
+        },
+        "/fs": {
+            "filesystem": {
+                "localPath" : "/home/jkew/Development/slamengine"
             }
         }
     },

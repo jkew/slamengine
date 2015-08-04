@@ -88,10 +88,19 @@ object MongoDbConfig {
   }
 }
 
+final case class FileSystemBackendConfig(localPath:String) extends BackendConfig {
+  override def validate(path: Path) = if (!path.pureDir) -\/("Not a directory path: " + path) else \/-(())
+}
+
+object FileSystemBackendConfig {
+  implicit def Codec = casecodec1(FileSystemBackendConfig.apply, FileSystemBackendConfig.unapply)("localPath")
+}
+
 object BackendConfig {
   implicit def BackendConfig = CodecJson[BackendConfig](
     encoder = _ match {
       case x @ MongoDbConfig(_) => ("mongodb", MongoDbConfig.Codec.encode(x)) ->: jEmptyObject
+      case x @ FileSystemBackendConfig(_) => ("filesystem", FileSystemBackendConfig.Codec.encode(x)) ->: jEmptyObject
     },
     decoder = _.get[MongoDbConfig]("mongodb").map(v => v: BackendConfig))
 }
